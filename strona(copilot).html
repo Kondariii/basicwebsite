@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books and Others</title>
+    <style>
+        body {
+            background: linear-gradient(to bottom right, #333, #666);
+            margin: 0;
+            padding: 0;
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background: linear-gradient(to right, #444, #111);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            font-family: 'Garamond', serif;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-bottom: 2px solid #555;
+            border-radius: 0 0 15px 15px;
+        }
+        .content {
+            color: #ddd;
+            text-align: center;
+            padding: 80px;
+            margin-top: 133px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            flex-grow: 1;
+            background: rgba(51, 51, 51, 0.9);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 25px;
+        }
+        input[type="text"], input[type="radio"], button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 5px;
+            font-family: 'Georgia', serif;
+            border-radius: 10px; /* Increased border-radius for more rounded look */
+            border: 1px solid #444;
+            background: #555;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        button {
+            background-color: #444;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #222;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        label {
+            font-size: 16px;
+            color: #ddd;
+            font-family: 'Georgia', serif;
+            margin-right: 10px;
+        }
+        table {
+            margin: 20px 0;
+            border-collapse: collapse;
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #111;
+            color: white;
+            border-radius: 0; /* Remove rounded borders from table headers */
+        }
+        tr:nth-child(even) {
+            background-color: #555;
+        }
+        .table-container {
+            margin-top: auto;
+            padding: 20px;
+            background-color: #444;
+            width: 100%;
+            box-sizing: border-box;
+            background: rgba(51, 51, 51, 0.9);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 15px 15px 0 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Books and Others</h1>
+    </header>
+    <div class="content">
+        <form id="inputForm">
+            <input type="text" name="inputText" id="inputText" placeholder="Type something..." aria-label="Input text">
+            <br>
+            <label><input type="radio" id="yes" name="choice" value="yes"> Yes</label>
+            <label><input type="radio" id="no" name="choice" value="no"> No</label>
+            <br>
+            <button type="button" onclick="submitForm()">Add to Table</button>
+        </form>
+    </div>
+    <div class="table-container">
+        <table id="resultTable">
+            <thead>
+                <tr>
+                    <th>Input</th>
+                    <th>Choice</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <script>
+        function submitForm() {
+            const inputText = document.getElementById('inputText').value.trim();
+            const choice = document.querySelector('input[name="choice"]:checked');
+            
+            if (!inputText || !choice) {
+                alert('Please enter text and select a choice.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('inputText', inputText);
+            formData.append('choice', choice.value);
+
+            fetch('save_data.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    addToTable(inputText, choice.value);
+                    document.getElementById('inputText').value = '';
+                    document.querySelectorAll('input[name="choice"]').forEach(radio => radio.checked = false);
+                } else {
+                    console.error(data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function addToTable(inputText, choice) {
+            const table = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
+            const cell1 = newRow.insertCell(0);
+            const cell2 = newRow.insertCell(1);
+            cell1.textContent = inputText;
+            cell2.textContent = choice;
+        }
+    </script>
+</body>
+</html>
